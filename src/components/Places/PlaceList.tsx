@@ -17,7 +17,7 @@ export function PlaceList({ places, total, selectedId, onSelect, onReset, idPref
         <h3>{total === 0 ? '아직 등록된 공간이 없습니다.' : '조건에 맞는 공간이 없습니다.'}</h3>
         <p>{total === 0 ? '동대문구의 무료·공공 공간을 조사하여 순차적으로 추가할 예정입니다.' : '일부 검색 조건을 해제해보세요.'}</p>
         {total > 0 && <button className="secondary-button" onClick={onReset} type="button">검색 조건 초기화</button>}
-        {total === 0 && <span className="research-label"><span />공간을 조사하고 있어요</span>}
+        {total === 0 && <span className="research-label"><span />공간 등록을 준비하고 있어요</span>}
       </div>}
   </section>;
 }

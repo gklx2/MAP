@@ -103,7 +103,9 @@ export const places: Place[] = [];
 
 대상 저장소: [gklx2/MAP](https://github.com/gklx2/MAP)
 
-배포가 완료되면 서비스 주소는 `https://gklx2.github.io/MAP/`입니다. 실제 배포 상태는 저장소 Actions에서 확인합니다.
+서비스 주소: **https://gklx2.github.io/MAP/**
+
+2026-10-26 GitHub Actions의 테스트·빌드·배포 성공을 확인했습니다. 이후 배포 상태는 저장소 Actions에서 확인합니다.
 
 1. 저장소의 **Settings → Pages → Build and deployment → Source**를 **GitHub Actions**로 설정합니다.
 2. 소스와 `package-lock.json`을 `main` 브랜치에 push합니다.
@@ -126,6 +128,7 @@ npm run preview
 ## 검증 범위
 
 - TypeScript 검사, 프로덕션 빌드 및 순수 함수 테스트를 실행합니다.
+- 최초 구현 검증: 테스트 7개 통과, TypeScript·Vite 빌드 성공, `/MAP/` 경로의 HTML·JS·CSS·아이콘 HTTP 200 확인. GitHub Actions에서도 테스트·빌드·배포가 성공했습니다.
 - 실제·가상 Place 레코드는 테스트에도 생성하지 않습니다.
 - 현재 비어 있지 않은 데이터의 카드·마커·상세 상호작용은 타입 검사와 코드 경로 검토로 확인합니다. 직접 조사한 장소를 추가하면 해당 흐름을 브라우저에서 추가 검증해야 합니다.
 - 사용자 컴퓨터의 브라우저 자동화 연결이 응답하지 않아 이번 실행에서 시각적·모바일 브라우저 QA는 완료하지 못했습니다. 반응형 CSS와 네이티브 모달 접근성 구조는 구현되어 있습니다.
