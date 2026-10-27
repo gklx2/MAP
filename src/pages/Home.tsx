@@ -31,7 +31,7 @@ export function Home() {
     document.getElementById(`desktop-place-${encodeURIComponent(id)}`)?.scrollIntoView({ block: 'nearest' });
   };
   const list = <PlaceList places={results} total={places.length} selectedId={selected?.id ?? null} onSelect={showDetail} onReset={reset} />;
-  const filters = <FilterPanel filters={state.filters} onChange={changeFilters} onReset={reset} />;
+  const filterPanel = (collapsible = false) => <FilterPanel filters={state.filters} onChange={changeFilters} onReset={reset} collapsible={collapsible} />;
   const chips = [
     ...state.filters.purposes.map(value => ({ key: `purpose-${value}`, label: purposeLabels[value], remove: () => changeFilters({ ...state.filters, purposes: state.filters.purposes.filter(item => item !== value) }) })),
     ...state.filters.categories.map(value => ({ key: `category-${value}`, label: categoryLabels[value], remove: () => changeFilters({ ...state.filters, categories: state.filters.categories.filter(item => item !== value) }) })),
@@ -61,7 +61,7 @@ export function Home() {
       </div>
       <div className="mobile-actions"><button type="button" className="secondary-button" onClick={() => setMobilePanel('filters')}><SlidersHorizontal size={17} aria-hidden="true" />필터 {filterCount > 0 && <span className="count-badge">{filterCount}</span>}</button>
         <button type="button" className="secondary-button" onClick={() => setMobilePanel('results')}><List size={17} aria-hidden="true" />공간 목록 <strong>{results.length}</strong></button></div>
-      <div className="desktop-panel">{filters}{list}
+      <div className="desktop-panel">{filterPanel(true)}{list}
         <footer className="sidebar-footer"><span>발견되지 않은 공간을, 일상 가까이.</span><a href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noopener noreferrer">배경지도 오류 제보<ArrowUpRight size={13} aria-hidden="true" /><span className="sr-only"> 새 탭에서 열기</span></a></footer>
       </div>
     </aside>
@@ -78,7 +78,7 @@ export function Home() {
       </footer>
     </div></main>
     {mobilePanel && <Modal title={mobilePanel === 'filters' ? '검색 필터' : '공간 목록'} onClose={() => setMobilePanel(null)}>
-      {mobilePanel === 'filters' ? <>{filters}<div className="sheet-action"><button className="primary-button" type="button" onClick={() => setMobilePanel(null)}>검색 결과 {results.length}개 보기</button></div></> : <PlaceList places={results} total={places.length} selectedId={selected?.id ?? null} onSelect={showDetail} onReset={reset} idPrefix="mobile" />}
+      {mobilePanel === 'filters' ? <>{filterPanel()}<div className="sheet-action"><button className="primary-button" type="button" onClick={() => setMobilePanel(null)}>검색 결과 {results.length}개 보기</button></div></> : <PlaceList places={results} total={places.length} selectedId={selected?.id ?? null} onSelect={showDetail} onReset={reset} idPrefix="mobile" />}
     </Modal>}
     {detail && <PlaceDetail place={detail} onClose={() => setDetailId(null)} />}
   </div>;
