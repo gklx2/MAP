@@ -2,7 +2,9 @@ name: Deploy map to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - draft/first-place-survey
   workflow_dispatch:
 
 permissions:
@@ -17,32 +19,65 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout main
         uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main-src
+
+      - name: Checkout preview branch
+        uses: actions/checkout@v4
+        with:
+          ref: draft/first-place-survey
+          path: preview-src
+
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
-      - name: Install dependencies
-        run: npm ci
-      - name: Test search and URL contracts
-        run: npm test
-      - name: Build
-        run: npm run build
+
+      - name: Build main
+        working-directory: main-src
+        env:
+          VITE_BASE_PATH: /MAP/
+        run: |
+          npm ci
+          npm test
+          npm run build
+
+      - name: Build preview
+        working-directory: preview-src
+        env:
+          VITE_BASE_PATH: /MAP/preview/first-place-survey/
+        run: |
+          npm ci
+          npm test
+          npm run build
+
+      - name: Assemble Pages site
+        run: |
+          mkdir -p site/preview/first-place-survey
+          cp -a main-src/dist/. site/
+          cp -a preview-src/dist/. site/preview/first-place-survey/
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: site
+
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     runs-on: ubuntu-latest
     needs: build
+
     steps:
       - name: Deploy
         id: deployment

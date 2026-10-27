@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react';
-import { ArrowUpRight, Leaf, List, MapPin, PanelLeftClose, PanelLeftOpen, SlidersHorizontal, X } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowUpRight, Leaf, MapPin, PanelLeftClose, PanelLeftOpen, X } from 'lucide-react';
 import { places } from '../data/places';
 import { searchPlaces } from '../utils/searchPlaces';
 import { filterPlaces } from '../utils/filterPlaces';
-import { booleanFilterKeys, countFilters, emptySearchState, type PlaceFilters } from '../types/filters';
+import { booleanFilterKeys, emptySearchState, type PlaceFilters } from '../types/filters';
 import { useSearchState } from '../hooks/useSearchState';
 import { categoryLabels, purposeLabels, facilityOptions, conditionOptions } from '../config/labels';
 import { SearchBar } from '../components/Search/SearchBar';
@@ -11,22 +11,48 @@ import { FilterPanel } from '../components/Filters/FilterPanel';
 import { PlaceList } from '../components/Places/PlaceList';
 import { PlaceDetail } from '../components/Places/PlaceDetail';
 import { MapView } from '../components/Map/MapView';
-import { Modal } from '../components/Layout/Modal';
 
 export function Home() {
   const [state, update] = useSearchState();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
-  const [mobilePanel, setMobilePanel] = useState<'filters' | 'results' | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth > 767);
+  const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 767px)').matches);
+  const [sidebarOpen, setSidebarOpen] = useState(() => !window.matchMedia('(max-width: 767px)').matches);
+  const sidebarRef = useRef<HTMLElement>(null);
+  const closeSidebarRef = useRef<HTMLButtonElement>(null);
   const results = useMemo(() => filterPlaces(searchPlaces(places, state.query), state.filters), [state]);
   const selected = results.find(place => place.id === selectedId);
   const detail = results.find(place => place.id === detailId);
-  const filterCount = countFilters(state.filters);
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 767px)');
+    const onChange = (event: MediaQueryListEvent) => { setIsMobile(event.matches); setSidebarOpen(!event.matches); };
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
+  }, []);
+
+  useEffect(() => {
+    if (!isMobile || !sidebarOpen) return;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    closeSidebarRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (document.querySelector('dialog[open]')) return;
+      if (event.key === 'Escape') { event.preventDefault(); setSidebarOpen(false); return; }
+      if (event.key !== 'Tab') return;
+      const focusable = [...(sidebarRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ) ?? [])].filter(element => element.getClientRects().length > 0);
+      if (!focusable.length) { event.preventDefault(); return; }
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => { document.removeEventListener('keydown', onKeyDown); previous?.focus(); };
+  }, [isMobile, sidebarOpen]);
 
   const changeFilters = (filters: PlaceFilters) => { update({ ...state, filters }); setSelectedId(null); setDetailId(null); };
   const reset = () => { update(emptySearchState()); setSelectedId(null); setDetailId(null); };
-  const showDetail = (id: string) => { setSelectedId(id); setMobilePanel(null); setDetailId(id); };
+  const showDetail = (id: string) => { setSelectedId(id); if (isMobile) setSidebarOpen(false); setDetailId(id); };
   const selectMarker = (id: string) => {
     setSelectedId(id);
     document.getElementById(`desktop-place-${encodeURIComponent(id)}`)?.scrollIntoView({ block: 'nearest' });
@@ -58,22 +84,25 @@ export function Home() {
       <div><div className="brand-kicker">우리 동네, 머물 곳</div><h1>동대문구 무료 공간 지도</h1></div></div>
       <div className="header-note"><Leaf size={17} aria-hidden="true" /><span>소비 없이, 함께 쓰는 공간</span><span className="header-divider" /><span className="status-pill">조사 준비 중</span></div>
     </header>
-    <main className="workspace"><aside id="search-sidebar" className="sidebar" aria-label="공간 검색과 목록" hidden={!sidebarOpen}>
+    <main className="workspace">
+    {isMobile && sidebarOpen && <div className="sidebar-backdrop" aria-hidden="true" onClick={() => setSidebarOpen(false)} />}
+    <aside ref={sidebarRef} id="search-sidebar" className="sidebar" aria-label="공간 검색과 목록"
+      role={isMobile ? 'dialog' : undefined} aria-modal={isMobile && sidebarOpen ? true : undefined} hidden={!sidebarOpen}>
+      <div className="sidebar-mobile-header"><h2>공간 검색</h2>
+        <button ref={closeSidebarRef} type="button" className="icon-button" aria-label="메뉴 닫기" onClick={() => setSidebarOpen(false)}><X size={22} aria-hidden="true" /></button>
+      </div>
       <div className="sidebar-intro"><span className="eyebrow">일상에 쉼표가 필요할 때</span><h2>돈을 쓰지 않아도,<br />머물 수 있는 곳.</h2>
         <p>돈을 쓰지 않아도 머물 수 있는 동대문구의 공간을 찾아보세요.</p>
         <SearchBar value={state.query} onChange={query => { update({ ...state, query }, 'replace'); setSelectedId(null); setDetailId(null); }} />
       </div>
-      <div className="mobile-actions"><button type="button" className="secondary-button" onClick={() => setMobilePanel('filters')}><SlidersHorizontal size={17} aria-hidden="true" />필터 {filterCount > 0 && <span className="count-badge">{filterCount}</span>}</button>
-        <button type="button" className="secondary-button" onClick={() => setMobilePanel('results')}><List size={17} aria-hidden="true" />공간 목록 <strong>{results.length}</strong></button></div>
       <div className="desktop-panel">{filters}{list}
         <footer className="sidebar-footer"><span>발견되지 않은 공간을, 일상 가까이.</span><a href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noopener noreferrer">배경지도 오류 제보<ArrowUpRight size={13} aria-hidden="true" /><span className="sr-only"> 새 탭에서 열기</span></a></footer>
       </div>
     </aside>
     <div className="map-column">
-      <button type="button" className="sidebar-handle" aria-controls="search-sidebar" aria-expanded={sidebarOpen}
+      <button type="button" className="sidebar-handle" aria-controls="search-sidebar" aria-expanded={sidebarOpen} aria-label={sidebarOpen ? '메뉴 닫기' : '메뉴 열기'}
         onClick={() => setSidebarOpen(open => !open)}>
         {sidebarOpen ? <PanelLeftClose size={18} aria-hidden="true" /> : <PanelLeftOpen size={18} aria-hidden="true" />}
-        <span>{sidebarOpen ? '메뉴 닫기' : '메뉴 열기'}</span>
       </button>
       <div className="map-toolbar"><div><span className="live-dot" /><strong>동대문구 둘러보기</strong><span className="toolbar-hint">잠시 머물 공간을 찾아보세요</span></div><span className="result-summary" role="status">검색 결과 <strong>{results.length}</strong>개</span></div>
       {chips.length > 0 && <div className="active-filters" aria-label="선택한 필터">{chips.map(chip => <button type="button" key={chip.key} onClick={chip.remove} aria-label={`${chip.label} 조건 해제`}>{chip.label}<X size={12} aria-hidden="true" /></button>)}<button type="button" className="clear-all" onClick={reset}>전체 초기화</button></div>}
@@ -87,9 +116,6 @@ export function Home() {
         <a href="https://github.com/KnellBalm/kr-admin-geojson" target="_blank" rel="noopener noreferrer">가공: kr-admin-geojson<span className="sr-only"> 새 탭에서 열기</span></a>
       </footer>
     </div></main>
-    {mobilePanel && <Modal title={mobilePanel === 'filters' ? '검색 필터' : '공간 목록'} onClose={() => setMobilePanel(null)}>
-      {mobilePanel === 'filters' ? <>{filters}<div className="sheet-action"><button className="primary-button" type="button" onClick={() => setMobilePanel(null)}>검색 결과 {results.length}개 보기</button></div></> : <PlaceList places={results} total={places.length} selectedId={selected?.id ?? null} onSelect={showDetail} onReset={reset} idPrefix="mobile" />}
-    </Modal>}
     {detail && <PlaceDetail place={detail} onClose={() => setDetailId(null)} />}
   </div>;
 }
