@@ -106,7 +106,8 @@ export function Home() {
       </button>
       <div className="map-toolbar"><div><span className="live-dot" /><strong>동대문구 둘러보기</strong><span className="toolbar-hint">잠시 머물 공간을 찾아보세요</span></div><span className="result-summary" role="status">검색 결과 <strong>{results.length}</strong>개</span></div>
       {chips.length > 0 && <div className="active-filters" aria-label="선택한 필터">{chips.map(chip => <button type="button" key={chip.key} onClick={chip.remove} aria-label={`${chip.label} 조건 해제`}>{chip.label}<X size={12} aria-hidden="true" /></button>)}<button type="button" className="clear-all" onClick={reset}>전체 초기화</button></div>}
-      <MapView places={results} selectedId={selected?.id ?? null} onSelect={selectMarker} onDetail={showDetail} />
+      <MapView places={results} selectedId={selected?.id ?? null} onSelect={selectMarker}
+        onClose={id => setSelectedId(current => current === id ? null : current)} onDetail={showDetail} />
       <footer className="map-source" aria-label="행정경계 데이터 출처">
         <span>행정경계 출처:</span>
         <a href="https://www.kgeop.go.kr/" target="_blank" rel="noopener noreferrer">국가공간정보포털<span className="sr-only"> 새 탭에서 열기</span></a>
