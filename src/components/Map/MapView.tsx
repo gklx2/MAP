@@ -33,37 +33,40 @@ function MapController({ selected, resetKey }: { selected?: Place; resetKey: num
   useEffect(() => {
     if (!selected) return;
     const animate = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let frame = 0;
-    const centerMobilePopup = () => {
-      if (!window.matchMedia('(max-width: 767px)').matches) return;
-      frame = requestAnimationFrame(() => {
-        let popup: LeafletPopup | undefined;
-        map.eachLayer(layer => {
-          if (layer instanceof LeafletPopup && layer.isOpen() && layer.getLatLng()?.equals([selected.latitude, selected.longitude])) popup = layer;
-        });
-        const element = popup?.getElement();
-        if (!element) return;
+    const position: [number, number] = [selected.latitude, selected.longitude];
+    const zoom = Math.max(map.getZoom(), 16);
+    let popup: LeafletPopup | undefined;
+    map.eachLayer(layer => {
+      if (layer instanceof LeafletPopup && layer.isOpen() && layer.getLatLng()?.equals(position)) popup = layer;
+    });
+    let center = map.project(position, zoom);
+    if (popup) {
+      // Measure the full popup at the destination zoom before calculating its position.
+      map.getContainer().classList.remove('map-zoomed-out');
+      popup.update();
+      const element = popup.getElement();
+      if (element) {
         const bounds = element.getBoundingClientRect();
         const mapBounds = map.getContainer().getBoundingClientRect();
-        const x = bounds.left + bounds.width / 2 - (mapBounds.left + mapBounds.width / 2);
-        const y = bounds.top + bounds.height / 2 - (mapBounds.top + mapBounds.height / 2 - 24);
-        map.panBy([x, y], { animate });
-      });
-    };
-    map.flyTo([selected.latitude, selected.longitude], Math.max(map.getZoom(), 16), { animate });
-    if (animate) map.once('moveend', centerMobilePopup);
-    else centerMobilePopup();
-    return () => { map.off('moveend', centerMobilePopup); cancelAnimationFrame(frame); };
+        const marker = map.latLngToContainerPoint(position);
+        const x = bounds.left + bounds.width / 2 - mapBounds.left - marker.x;
+        const y = bounds.top + bounds.height / 2 - mapBounds.top - marker.y + 24;
+        center = center.add([x, y]);
+      }
+    }
+    map.flyTo(map.unproject(center, zoom), zoom, { animate });
   }, [map, selected]);
   useEffect(() => { map.fitBounds(region.bounds, { padding: [24, 24] }); }, [map, resetKey]);
   useEffect(() => {
+    const mobile = window.matchMedia('(max-width: 767px)');
     const updatePopupSize = () => {
-      map.getContainer().classList.toggle('map-zoomed-out', map.getZoom() <= 15);
+      map.getContainer().classList.toggle('map-zoomed-out', map.getZoom() <= (mobile.matches ? 15 : 14));
       map.eachLayer(layer => { if (layer instanceof LeafletPopup) layer.update(); });
     };
     updatePopupSize();
     map.on('zoomend', updatePopupSize);
-    return () => { map.off('zoomend', updatePopupSize); map.getContainer().classList.remove('map-zoomed-out'); };
+    mobile.addEventListener('change', updatePopupSize);
+    return () => { map.off('zoomend', updatePopupSize); mobile.removeEventListener('change', updatePopupSize); map.getContainer().classList.remove('map-zoomed-out'); };
   }, [map]);
   return null;
 }
@@ -146,7 +149,6 @@ export function MapView({ places, selectedId, onSelect, onClose, onDetail }: {
     <div className="map-location" aria-label={`지도 중심: ${locationLabel}`} aria-live="polite" title={`지도 중심: ${locationLabel}`}>
       <MapPin size={16} aria-hidden="true" />
       <span>{currentRegion.state === 'matched' ? <>{currentRegion.region.SIDO_NM} <strong>{currentRegion.region.SIG_KOR_NM}</strong></> : locationLabel}</span>
-      <span className="location-dot" aria-hidden="true" />
     </div>
     <button className="map-reset" type="button" onClick={() => setResetKey(key => key + 1)}><Crosshair size={17} aria-hidden="true" />동대문구 전체 보기</button>
     <label className="map-style-select"><Layers size={16} aria-hidden="true" /><span>지도 스타일</span>
