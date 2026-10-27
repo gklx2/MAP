@@ -34,6 +34,25 @@ describe('장소 데이터와 빈 결과 처리', () => {
   });
 });
 
+describe('이용 목적 검색', () => {
+  const studyPlace = places.find(place => place.purposes.includes('study')
+    && ![place.name, place.address, place.description].some(value => value?.includes('공부')));
+
+  it.skipIf(!studyPlace)('설명에 공부가 없어도 이용 목적이 공부인 장소를 찾는다', () => {
+    expect(searchPlaces([studyPlace!], '공부')).toEqual([studyPlace]);
+    const city = studyPlace!.address.split(' ')[0];
+    expect(searchPlaces([studyPlace!], `${city} 공부`)).toEqual([studyPlace]);
+  });
+
+  it.each([
+    ['study', '공부'], ['work', '노트북'], ['rest', '휴식'],
+    ['conversation', '대화'], ['reading', '독서'], ['waiting', '대기'], ['meeting', '모임'],
+  ] as const)('%s 이용 목적을 한국어 검색어 %s로 찾는다', (purpose, query) => {
+    const matchingPlaces = places.filter(place => place.purposes.includes(purpose));
+    expect(searchPlaces(places, query)).toEqual(expect.arrayContaining(matchingPlaces));
+  });
+});
+
 describe('URL 상태', () => {
   it('복수 선택, 한국어, false, 공백 및 모든 boolean 값을 왕복 보존한다', () => {
     const state = emptySearchState();
