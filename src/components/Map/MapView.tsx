@@ -5,6 +5,7 @@ import { Crosshair, MapPin, RefreshCw, TriangleAlert } from 'lucide-react';
 import type { Place } from '../../types/place';
 import { region } from '../../config/region';
 import { PlaceMarker } from './PlaceMarker';
+import { MapCenterRegion, type RegionStatus } from './MapCenterRegion';
 
 function MapController({ selected, resetKey }: { selected?: Place; resetKey: number }) {
   const map = useMap();
@@ -43,16 +44,25 @@ export function MapView({ places, selectedId, onSelect, onDetail }: {
   places: Place[]; selectedId: string | null; onSelect: (id: string) => void; onDetail: (id: string) => void;
 }) {
   const [resetKey, setResetKey] = useState(0);
+  const [currentRegion, setCurrentRegion] = useState<RegionStatus>({ state: 'loading' });
   const selected = places.find(place => place.id === selectedId);
+  const locationLabel = currentRegion.state === 'matched'
+    ? `${currentRegion.region.SIDO_NM} ${currentRegion.region.SIG_KOR_NM}`
+    : currentRegion.state === 'loading' ? '지역 확인 중' : currentRegion.state === 'outside' ? '지역 정보 없음' : '지역 정보 불러오기 실패';
   return <section className="map-region" aria-label="동대문구 공간 지도">
     <MapContainer bounds={region.bounds} boundsOptions={{ padding: [24, 24] }} minZoom={11} zoomControl={false} className="map-canvas">
       <Tiles /><ZoomControl position="bottomright" zoomInTitle="지도 확대" zoomOutTitle="지도 축소" />
       <MapController selected={selected} resetKey={resetKey} />
+      <MapCenterRegion onChange={setCurrentRegion} />
       <GeoJSON data={region.boundary} interactive={false}
         style={{ color: '#26251e', weight: 1.5, opacity: 1, dashArray: '7 5', fillColor: '#c08532', fillOpacity: 0.08 }} />
       {places.map(place => <PlaceMarker key={place.id} place={place} selected={place.id === selectedId} onSelect={onSelect} onDetail={onDetail} />)}
     </MapContainer>
-    <div className="map-location"><MapPin size={16} aria-hidden="true" /><span>서울특별시 <strong>동대문구</strong></span><span className="location-dot" /></div>
+    <div className="map-location" aria-label={`지도 중심: ${locationLabel}`} aria-live="polite" title={`지도 중심: ${locationLabel}`}>
+      <MapPin size={16} aria-hidden="true" />
+      <span>{currentRegion.state === 'matched' ? <>{currentRegion.region.SIDO_NM} <strong>{currentRegion.region.SIG_KOR_NM}</strong></> : locationLabel}</span>
+      <span className="location-dot" aria-hidden="true" />
+    </div>
     <button className="map-reset" type="button" onClick={() => setResetKey(key => key + 1)}><Crosshair size={17} aria-hidden="true" />동대문구 전체 보기</button>
     <div className="map-caption"><span className="legend-dot" />등록 공간 {places.length}개</div>
   </section>;
