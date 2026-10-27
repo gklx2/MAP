@@ -49,7 +49,7 @@ export function MapView({ places, selectedId, onSelect, onDetail }: {
       <Tiles /><ZoomControl position="bottomright" zoomInTitle="지도 확대" zoomOutTitle="지도 축소" />
       <MapController selected={selected} resetKey={resetKey} />
       <GeoJSON data={region.boundary} interactive={false}
-        style={{ color: '#9c5d27', weight: 1.5, opacity: 0.9, dashArray: '7 5', fillColor: '#c08532', fillOpacity: 0.08 }} />
+        style={{ color: '#26251e', weight: 1.5, opacity: 1, dashArray: '7 5', fillColor: '#c08532', fillOpacity: 0.08 }} />
       {places.map(place => <PlaceMarker key={place.id} place={place} selected={place.id === selectedId} onSelect={onSelect} onDetail={onDetail} />)}
     </MapContainer>
     <div className="map-location"><MapPin size={16} aria-hidden="true" /><span>서울특별시 <strong>동대문구</strong></span><span className="location-dot" /></div>
