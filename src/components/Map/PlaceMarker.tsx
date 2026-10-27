@@ -10,12 +10,12 @@ const makeIcon = (selected: boolean) => divIcon({
 const defaultIcon = makeIcon(false);
 const selectedIcon = makeIcon(true);
 
-export function PlaceMarker({ place, selected, onSelect, onDetail }: {
-  place: Place; selected: boolean; onSelect: (id: string) => void; onDetail: (id: string) => void;
+export function PlaceMarker({ place, selected, onSelect, onClose, onDetail }: {
+  place: Place; selected: boolean; onSelect: (id: string) => void; onClose: (id: string) => void; onDetail: (id: string) => void;
 }) {
   return <Marker position={[place.latitude, place.longitude]} icon={selected ? selectedIcon : defaultIcon}
-    title={place.name} alt={place.name} eventHandlers={{ click: () => onSelect(place.id) }}>
-    <Popup><div className="place-popup"><span className="eyebrow">{categoryLabels[place.category]}</span><h3>{place.name}</h3>
+    title={place.name} alt={place.name} eventHandlers={{ click: () => onSelect(place.id), popupclose: () => onClose(place.id) }}>
+    <Popup className="place-map-popup"><div className="place-popup"><span className="eyebrow">{categoryLabels[place.category]}</span><h3>{place.name}</h3>
       <p>{place.address}</p><p>{place.openingHours || '운영시간 미확인'}</p>
       <p>{place.free ? '무료' : '유료'} · Wi-Fi {booleanLabel(place.wifi)}<br />콘센트 {booleanLabel(place.outlet)} · 화장실 {booleanLabel(place.restroom)}</p>
       <p>{place.purposes.map(purpose => purposeLabels[purpose]).join(' · ') || '추천 목적 미확인'}</p>
