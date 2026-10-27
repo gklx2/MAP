@@ -33,29 +33,34 @@ jobs:
           ref: draft/first-place-survey
           path: preview-src
 
-      - name: Setup Node
+      - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
 
       - name: Build main
         working-directory: main-src
+        env:
+          VITE_BASE_PATH: /MAP/
         run: |
           npm ci
+          npm test
           npm run build
 
       - name: Build preview
         working-directory: preview-src
+        env:
+          VITE_BASE_PATH: /MAP/preview/first-place-survey/
         run: |
           npm ci
+          npm test
           npm run build
 
-      - name: Assemble site
+      - name: Assemble Pages site
         run: |
           mkdir -p site/preview/first-place-survey
-
-          cp -r main-src/dist/* site/
-          cp -r preview-src/dist/* site/preview/first-place-survey/
+          cp -a main-src/dist/. site/
+          cp -a preview-src/dist/. site/preview/first-place-survey/
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
