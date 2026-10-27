@@ -35,9 +35,10 @@ export const places: Place[] = [
     category: 'library',
     address: '서울 동대문구 회기로10길 60',
     district: '동대문구',
-    // 대표 좌표(이전 표의 * 표시 근삿값): 실제 출입구 위치 추가 검증 필요.
-    latitude: 37.591,
-    longitude: 127.043,
+    // 서울문화포털 시설 지도 좌표. 실제 출입구 위치는 별도 확인 필요.
+    // https://culture.seoul.go.kr/culture/culture/cultureSpace/view.do?facCode=101481&menuNo=200025
+    latitude: 37.5899695,
+    longitude: 127.0472897,
     description: '홍릉근린공원 인근의 구립 공공도서관. 독서와 학습에 적합하며 열람공간에서는 정숙이 필요하다.',
     openingHours: '종합자료실 화–금 09:00–22:00, 토·일 09:00–18:00; 어린이자료실 09:00–18:00; 월요일·법정공휴일·임시휴관일 휴관',
     free: true,
@@ -138,9 +139,10 @@ export const places: Place[] = [
     category: 'library',
     address: '서울 동대문구 장안벚꽃로 323',
     district: '동대문구',
-    // 대표 좌표(이전 표의 * 표시 근삿값): 실제 출입구 위치 추가 검증 필요.
-    latitude: 37.589,
-    longitude: 127.068,
+    // 서울문화포털 시설 지도 좌표. 실제 출입구 위치는 별도 확인 필요.
+    // https://culture.seoul.go.kr/culture/culture/cultureSpace/view.do?facCode=102139&menuNo=200025
+    latitude: 37.5871743,
+    longitude: 127.069939,
     description: '휘경동의 공공도서관. 일반열람실을 평일 저녁까지 운영하며 열람공간에서는 정숙이 필요하다.',
     openingHours: '일반열람실 월–목 09:00–22:00, 토·일 09:00–18:00; 어린이열람실 09:00–18:00; 금요일·법정공휴일·임시휴관일 휴관',
     free: true,
@@ -213,9 +215,10 @@ export const places: Place[] = [
     category: 'public_lounge',
     address: '서울 동대문구 고산자로36길 3 경동시장 신관 2층',
     district: '동대문구',
-    // 대표 좌표(이전 표의 * 표시 근삿값): 실제 출입구 위치 추가 검증 필요.
-    latitude: 37.580,
-    longitude: 127.039,
+    // 경동시장 주소의 대표 좌표. 신관 2층 도서관 출입구는 별도 확인 필요.
+    // https://jusoga.com/b/1123010300110190000034389/서울특별시-동대문구-고산자로36길-3-제기동
+    latitude: 37.578932,
+    longitude: 127.0387334,
     description: '경동시장 내 유휴공간을 활용한 작은도서관·라운지. 과거 개방형 독서·학습 공간으로 소개되었으나 현재 운영상태와 운영시간 외 개방 여부는 현장 확인이 필요하다.',
     // 구청 시설목록에 휴관일이 기재되어 있어 이전 표의 시간에 보완함. 현재 운영 추가 검증 필요.
     openingHours: '09:00–18:00; 둘째·넷째 일요일 및 법정공휴일 휴관 (현재 운영상태 추가 확인 필요)',
@@ -238,9 +241,10 @@ export const places: Place[] = [
     category: 'library',
     address: '서울 동대문구 천호대로4길 22',
     district: '동대문구',
-    // 이전 조사표의 대표 좌표. 실제 출입구 정밀좌표는 추가 검증 필요.
-    latitude: 37.573501,
-    longitude: 127.025030,
+    // 도로명주소에 해당하는 건물 대표 좌표. 실제 출입구 위치는 별도 확인 필요.
+    // https://findby.co.kr/details/02586-112304115545-st-652ba2108c641f9e38ae6beb
+    latitude: 37.5735535,
+    longitude: 127.0247796,
     description: '서울시교육청 공공도서관. 자료실과 자율학습실을 운영하며 시설별 이용시간·좌석 이용 절차 확인이 필요하다.',
     // 추가 검증 필요: 공식 홈페이지 본문을 이번 작업에서 불러오지 못해 이전 조사값 유지.
     openingHours: '자료실 평일 최대 20:00, 자율학습실 최대 22:00 (시작시각·주말시간·정기휴관일 추가 확인 필요)',
@@ -288,11 +292,12 @@ export const places: Place[] = [
     id: 'hongneung-park',
     name: '홍릉근린공원',
     category: 'park',
-    address: '서울 동대문구 회기로10길 60 일대',
+    address: '서울 동대문구 홍릉로 90 일대',
     district: '동대문구',
-    // 대표 좌표(이전 표의 * 표시 근삿값). 정보화도서관과 동일하므로 개별 마커 위치 추가 검증 필요.
-    latitude: 37.591,
-    longitude: 127.043,
+    // 공원 내 안전비상벨 위치를 대표점으로 사용. 특정 출입구 좌표는 아님.
+    // https://feb.purpleo.co.kr/view/59653
+    latitude: 37.58985923,
+    longitude: 127.0445825,
     description: '숲과 약 830m 둘레길을 갖춘 청량리 지역 근린공원. 주변 홍릉숲·영휘원·숭인원과는 별도 공간이다.',
     // 추가 검증 필요: 공식 소개에서 상시 개방시간까지 확인하지 못해 이전 조사값 유지.
     openingHours: '24시간 (이전 조사값; 출입구별 개방시간 추가 확인 필요)',
@@ -336,11 +341,12 @@ export const places: Place[] = [
     id: 'yongdu-park',
     name: '용두근린공원',
     category: 'park',
-    address: '서울 동대문구 용두동 일대',
+    address: '서울 동대문구 청계천로 563 일대',
     district: '동대문구',
-    // 대표 좌표(이전 표의 * 표시 근삿값): 정확한 주소·출입구 위치 추가 검증 필요.
-    latitude: 37.575,
-    longitude: 127.037,
+    // 공원 내 화장실 위치를 대표점으로 사용. 특정 출입구 좌표는 아님.
+    // https://fpt.purpleo.co.kr/view/11264
+    latitude: 37.5733609,
+    longitude: 127.0391787,
     description: '용두동 주거·행정지역의 생활형 근린공원. 일상적인 산책과 휴식을 위한 공간이다.',
     // 운영시간 추가 검증 필요.
     openingHours: '24시간 (이전 조사값; 추가 확인 필요)',
@@ -360,11 +366,12 @@ export const places: Place[] = [
     id: 'jangan-park',
     name: '장안근린공원',
     category: 'park',
-    address: '서울 동대문구 장안동 일대',
+    address: '서울 동대문구 장한로 191 일대',
     district: '동대문구',
-    // 대표 좌표(이전 표의 * 표시 근삿값): 정확한 주소·출입구 위치 추가 검증 필요.
-    latitude: 37.572,
-    longitude: 127.071,
+    // 공원 주소의 대표 좌표. 공원 전체나 특정 출입구를 뜻하지 않음.
+    // https://info.koreacharts.com/tour/2763675/contents.html
+    latitude: 37.5775951,
+    longitude: 127.0719183,
     description: '장안동 주거지역에 위치한 생활권 근린공원. 휴식과 가벼운 대화를 위한 공간이다.',
     // 운영시간 추가 검증 필요.
     openingHours: '24시간 (이전 조사값; 추가 확인 필요)',
