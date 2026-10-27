@@ -45,15 +45,15 @@ export function MapView({ places, selectedId, onSelect, onDetail }: {
   const [resetKey, setResetKey] = useState(0);
   const selected = places.find(place => place.id === selectedId);
   return <section className="map-region" aria-label="동대문구 공간 지도">
-    <MapContainer bounds={region.bounds} boundsOptions={{ padding: [24, 24] }} maxBounds={region.navigationBounds}
-      maxBoundsViscosity={0.35} minZoom={11} zoomControl={false} className="map-canvas">
+    <MapContainer bounds={region.bounds} boundsOptions={{ padding: [24, 24] }} minZoom={11} zoomControl={false} className="map-canvas">
       <Tiles /><ZoomControl position="bottomright" zoomInTitle="지도 확대" zoomOutTitle="지도 축소" />
       <MapController selected={selected} resetKey={resetKey} />
-      {region.boundary && <GeoJSON data={region.boundary} style={{ color: '#236748', weight: 2, fillOpacity: 0.025 }} />}
+      <GeoJSON data={region.boundary} interactive={false}
+        style={{ color: '#236748', weight: 3, opacity: 0.9, dashArray: '7 5', fillColor: '#4f8d61', fillOpacity: 0.08 }} />
       {places.map(place => <PlaceMarker key={place.id} place={place} selected={place.id === selectedId} onSelect={onSelect} onDetail={onDetail} />)}
     </MapContainer>
     <div className="map-location"><MapPin size={16} aria-hidden="true" /><span>서울특별시 <strong>동대문구</strong></span><span className="location-dot" /></div>
     <button className="map-reset" type="button" onClick={() => setResetKey(key => key + 1)}><Crosshair size={17} aria-hidden="true" />동대문구 전체 보기</button>
-    <div className="map-caption"><span className="legend-dot" />등록 공간 {places.length}개<span className="caption-divider" />무료·공공 공간을 연결합니다</div>
+    <div className="map-caption"><span className="boundary-legend" aria-hidden="true" />동대문구 경계<span className="caption-divider" /><span className="legend-dot" />등록 공간 {places.length}개</div>
   </section>;
 }
