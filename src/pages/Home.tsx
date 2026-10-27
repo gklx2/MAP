@@ -68,7 +68,14 @@ export function Home() {
     <div className="map-column"><div className="map-toolbar"><div><span className="live-dot" /><strong>동대문구 둘러보기</strong><span className="toolbar-hint">잠시 머물 공간을 찾아보세요</span></div><span className="result-summary" role="status">검색 결과 <strong>{results.length}</strong>개</span></div>
       {chips.length > 0 && <div className="active-filters" aria-label="선택한 필터">{chips.map(chip => <button type="button" key={chip.key} onClick={chip.remove} aria-label={`${chip.label} 조건 해제`}>{chip.label}<X size={12} aria-hidden="true" /></button>)}<button type="button" className="clear-all" onClick={reset}>전체 초기화</button></div>}
       <MapView places={results} selectedId={selected?.id ?? null} onSelect={selectMarker} onDetail={showDetail} />
-      <div className="map-bottom-note"><span>무료 공간이 없는 것이 아니라, 우리가 잘 모르고 있는 것은 아닐까요?</span><span>현재는 공간 조사 전 단계입니다.</span></div>
+      <footer className="map-source" aria-label="행정경계 데이터 출처">
+        <span>행정경계 출처:</span>
+        <a href="https://www.kgeop.go.kr/" target="_blank" rel="noopener noreferrer">국가공간정보포털<span className="sr-only"> 새 탭에서 열기</span></a>
+        <span aria-hidden="true">·</span>
+        <a href="https://www.data.go.kr/" target="_blank" rel="noopener noreferrer">공공데이터포털<span className="sr-only"> 새 탭에서 열기</span></a>
+        <span aria-hidden="true">·</span>
+        <a href="https://github.com/KnellBalm/kr-admin-geojson" target="_blank" rel="noopener noreferrer">가공: kr-admin-geojson<span className="sr-only"> 새 탭에서 열기</span></a>
+      </footer>
     </div></main>
     {mobilePanel && <Modal title={mobilePanel === 'filters' ? '검색 필터' : '공간 목록'} onClose={() => setMobilePanel(null)}>
       {mobilePanel === 'filters' ? <>{filters}<div className="sheet-action"><button className="primary-button" type="button" onClick={() => setMobilePanel(null)}>검색 결과 {results.length}개 보기</button></div></> : <PlaceList places={results} total={places.length} selectedId={selected?.id ?? null} onSelect={showDetail} onReset={reset} idPrefix="mobile" />}

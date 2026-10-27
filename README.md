@@ -19,7 +19,7 @@
 - 지도 로딩 오류 안내·재시도, 동대문구 전체 보기, OSM 출처 표시
 - `SIG_CD: "11230"`인 동대문구 행정경계를 지도에 표시
 
-행정경계는 `src/data/sig.geojson`에서 동대문구만 추출한 `src/data/dongdaemun.boundary.json`을 사용합니다. 원본을 갱신할 때는 추출본도 함께 갱신해야 하며, 테스트에서 두 파일의 일치를 확인합니다. 경계선은 지도 이동을 제한하지 않습니다.
+행정경계는 `src/data/sig.geojson`에서 동대문구만 추출한 `src/data/dongdaemun.boundary.json`을 사용합니다. 출처: 국가공간정보포털, 공공데이터포털; 가공: [kr-admin-geojson](https://github.com/KnellBalm/kr-admin-geojson). 원본을 갱신할 때는 추출본도 함께 갱신해야 하며, 테스트에서 두 파일의 일치를 확인합니다. 경계선은 지도 이동을 제한하지 않습니다.
 
 ## 데이터 추가
 
