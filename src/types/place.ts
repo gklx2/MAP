@@ -8,8 +8,8 @@ export interface Place {
   longitude: number;
   description?: string;
   openingHours?: string;
-  free: boolean;
-  purchaseRequired: boolean;
+  free?: boolean;
+  purchaseRequired?: boolean;
   indoor?: boolean;
   outdoor?: boolean;
   wifi?: boolean;

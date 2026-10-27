@@ -116,13 +116,17 @@ export function Home() {
       {chips.length > 0 && <div className="active-filters" aria-label="선택한 필터">{chips.map(chip => <button type="button" key={chip.key} onClick={chip.remove} aria-label={`${chip.label} 조건 해제`}>{chip.label}<X size={12} aria-hidden="true" /></button>)}<button type="button" className="clear-all" onClick={reset}>전체 초기화</button></div>}
       <MapView places={results} selectedId={selected?.id ?? null} navigation={navigation} onSelect={selectMarker}
         onClose={id => { setSelectedId(current => current === id ? null : current); setNavigation(current => current?.id === id ? null : current); }} onDetail={showDetail} />
-      <footer className="map-source" aria-label="행정경계 데이터 출처">
+      <footer className="map-source" aria-label="데이터 출처">
         <span>행정경계 출처:</span>
         <a href="https://www.kgeop.go.kr/" target="_blank" rel="noopener noreferrer">국가공간정보포털<span className="sr-only"> 새 탭에서 열기</span></a>
         <span aria-hidden="true">·</span>
         <a href="https://www.data.go.kr/" target="_blank" rel="noopener noreferrer">공공데이터포털<span className="sr-only"> 새 탭에서 열기</span></a>
         <span aria-hidden="true">·</span>
         <a href="https://github.com/KnellBalm/kr-admin-geojson" target="_blank" rel="noopener noreferrer">가공: kr-admin-geojson<span className="sr-only"> 새 탭에서 열기</span></a>
+        <span aria-hidden="true">·</span><span>공간 데이터 출처:</span>
+        <a href="https://data.seoul.go.kr/dataList/OA-15480/S/1/datasetView.do" target="_blank" rel="noopener noreferrer">서울시 공공도서관 현황정보<span className="sr-only"> 새 탭에서 열기</span></a>
+        <span aria-hidden="true">·</span>
+        <a href="https://data.seoul.go.kr/dataList/OA-394/S/1/datasetView.do?tab=A" target="_blank" rel="noopener noreferrer">서울시 주요 공원현황<span className="sr-only"> 새 탭에서 열기</span></a>
       </footer>
     </div></main>
     {detail && <PlaceDetail place={detail} onClose={() => setDetailId(null)} />}
