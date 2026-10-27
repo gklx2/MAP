@@ -54,5 +54,6 @@ export function MapView({ places, selectedId, onSelect, onDetail }: {
     </MapContainer>
     <div className="map-location"><MapPin size={16} aria-hidden="true" /><span>서울특별시 <strong>동대문구</strong></span><span className="location-dot" /></div>
     <button className="map-reset" type="button" onClick={() => setResetKey(key => key + 1)}><Crosshair size={17} aria-hidden="true" />동대문구 전체 보기</button>
+    <div className="map-caption"><span className="legend-dot" />등록 공간 {places.length}개</div>
   </section>;
 }
