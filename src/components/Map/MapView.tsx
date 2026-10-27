@@ -24,6 +24,8 @@ type MapStyle = keyof typeof mapStyles;
 const vectorAttribution = '<a href="https://openfreemap.org/">OpenFreeMap</a> | &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | <a href="https://github.com/hyperknot/openfreemap/blob/main/LICENSE.md">지도 라이선스</a>';
 
 function focusPlace(map: LeafletMap, selected: Place) {
+    // Stop any previous animation before measuring the popup and marker positions.
+    map.stop();
     const animate = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const position: [number, number] = [selected.latitude, selected.longitude];
     const zoom = Math.max(map.getZoom(), 16);
@@ -32,8 +34,10 @@ function focusPlace(map: LeafletMap, selected: Place) {
     map.eachLayer(layer => {
       if (layer instanceof LeafletPopup && layer.isOpen() && layer.getLatLng()?.equals(position)) popup = layer;
     });
+    // Wait for popupopen instead of flying to the pin without a measurable popup.
+    if (!popup) return;
     let center = map.project(position, zoom);
-    if (popup) {
+    {
       // Measure the full popup at the destination zoom before calculating its position.
       map.getContainer().classList.remove('map-zoomed-out');
       popup.update();
@@ -47,49 +51,45 @@ function focusPlace(map: LeafletMap, selected: Place) {
         center = center.add([x, y]);
       }
     }
-    let frame = 0;
-    const alignPopup = () => {
-      frame = requestAnimationFrame(() => {
-        if (!popup?.isOpen()) {
-          map.eachLayer(layer => {
-            if (layer instanceof LeafletPopup && layer.isOpen() && layer.getLatLng()?.equals(position)) popup = layer;
-          });
-        }
-        if (!popup?.isOpen()) return;
-        popup.update();
-        const element = popup.getElement();
-        if (!element) return;
-        const bounds = element.getBoundingClientRect();
-        const mapBounds = map.getContainer().getBoundingClientRect();
-        const dx = bounds.left + bounds.width / 2 - (mapBounds.left + mapBounds.width / 2);
-        const dy = bounds.top + bounds.height / 2 - (mapBounds.top + mapBounds.height / 2) + verticalOffset;
-        // Correct after zoom and popup layout, when the final rendered height is known.
-        if (Math.abs(dx) > 1 || Math.abs(dy) > 1) map.panBy([dx, dy], { animate: false });
-      });
-    };
-    map.once('moveend', alignPopup);
     map.flyTo(map.unproject(center, zoom), zoom, { animate });
-    return () => { map.off('moveend', alignPopup); cancelAnimationFrame(frame); };
 }
 
-function MapController({ selected, navigation, places, resetKey }: { selected?: Place; navigation: { id: string } | null; places: Place[]; resetKey: number }) {
+function MapController({ navigation, places, resetKey }: { navigation: { id: string } | null; places: Place[]; resetKey: number }) {
   const map = useMap();
+  const focusFrame = useRef<number | null>(null);
   useEffect(() => {
     const observer = new ResizeObserver(() => map.invalidateSize());
     observer.observe(map.getContainer());
     return () => observer.disconnect();
   }, [map]);
   useEffect(() => {
-    if (selected) return focusPlace(map, selected);
-  }, [map, selected]);
+    const onPopupOpen = (event: { popup: LeafletPopup }) => {
+      const position = event.popup.getLatLng();
+      const place = places.find(item => position?.equals([item.latitude, item.longitude]));
+      if (!place) return;
+      if (focusFrame.current !== null) cancelAnimationFrame(focusFrame.current);
+      focusFrame.current = requestAnimationFrame(() => {
+        focusFrame.current = null;
+        focusPlace(map, place);
+      });
+    };
+    map.on('popupopen', onPopupOpen);
+    return () => {
+      map.off('popupopen', onPopupOpen);
+      if (focusFrame.current !== null) cancelAnimationFrame(focusFrame.current);
+      focusFrame.current = null;
+    };
+  }, [map, places]);
   useEffect(() => {
     if (!navigation) return;
     const place = places.find(item => item.id === navigation.id);
     if (!place) return;
-    // Wait for the marker popup to open so its height can be included in centering.
-    let cancelFocus: (() => void) | undefined;
-    const frame = requestAnimationFrame(() => { cancelFocus = focusPlace(map, place); });
-    return () => { cancelAnimationFrame(frame); cancelFocus?.(); };
+    // Also handle selecting a list item whose popup is already open.
+    if (focusFrame.current !== null) cancelAnimationFrame(focusFrame.current);
+    focusFrame.current = requestAnimationFrame(() => {
+      focusFrame.current = null;
+      focusPlace(map, place);
+    });
   }, [map, navigation, places]);
   useEffect(() => { map.fitBounds(region.bounds, { padding: [24, 24] }); }, [map, resetKey]);
   useEffect(() => {
@@ -167,7 +167,6 @@ export function MapView({ places, selectedId, navigation, onSelect, onClose, onD
   const [resetKey, setResetKey] = useState(0);
   const [mapStyle, setMapStyle] = useState<MapStyle>('bright');
   const [currentRegion, setCurrentRegion] = useState<RegionStatus>({ state: 'loading' });
-  const selected = places.find(place => place.id === selectedId);
   const locationLabel = currentRegion.state === 'matched'
     ? `${currentRegion.region.SIDO_NM} ${currentRegion.region.SIG_KOR_NM}`
     : currentRegion.state === 'loading' ? '지역 확인 중' : currentRegion.state === 'outside' ? '지역 정보 없음' : '지역 정보 불러오기 실패';
@@ -175,7 +174,7 @@ export function MapView({ places, selectedId, navigation, onSelect, onClose, onD
     <MapContainer bounds={region.bounds} boundsOptions={{ padding: [24, 24] }} minZoom={11} zoomControl={false} className="map-canvas">
       {mapStyle === 'osm' ? <Tiles /> : <VectorTiles style={mapStyle} />}
       <ZoomControl position="bottomright" zoomInTitle="지도 확대" zoomOutTitle="지도 축소" />
-      <MapController selected={selected} navigation={navigation} places={places} resetKey={resetKey} />
+      <MapController navigation={navigation} places={places} resetKey={resetKey} />
       <MapCenterRegion onChange={setCurrentRegion} />
       <GeoJSON data={region.boundary} interactive={false}
         style={{ color: '#26251e', weight: 1.5, opacity: 1, dashArray: '7 5', fillColor: '#c08532', fillOpacity: 0.08 }} />
