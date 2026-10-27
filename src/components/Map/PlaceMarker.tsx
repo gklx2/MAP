@@ -1,4 +1,5 @@
-import { divIcon } from 'leaflet';
+import { useEffect, useRef } from 'react';
+import { divIcon, type Marker as LeafletMarker } from 'leaflet';
 import { Marker, Popup } from 'react-leaflet';
 import type { Place } from '../../types/place';
 import { booleanLabel, categoryLabels, purposeLabels } from '../../config/labels';
@@ -10,10 +11,15 @@ const makeIcon = (selected: boolean) => divIcon({
 const defaultIcon = makeIcon(false);
 const selectedIcon = makeIcon(true);
 
-export function PlaceMarker({ place, selected, onSelect, onClose, onDetail }: {
-  place: Place; selected: boolean; onSelect: (id: string) => void; onClose: (id: string) => void; onDetail: (id: string) => void;
+export function PlaceMarker({ place, selected, navigation, onSelect, onClose, onDetail }: {
+  place: Place; selected: boolean; navigation: { id: string } | null; onSelect: (id: string) => void; onClose: (id: string) => void; onDetail: (id: string) => void;
 }) {
-  return <Marker position={[place.latitude, place.longitude]} icon={selected ? selectedIcon : defaultIcon}
+  const markerRef = useRef<LeafletMarker>(null);
+  useEffect(() => {
+    if (navigation?.id === place.id) markerRef.current?.openPopup();
+  }, [navigation, place.id]);
+
+  return <Marker ref={markerRef} position={[place.latitude, place.longitude]} icon={selected ? selectedIcon : defaultIcon}
     title={place.name} alt={place.name} eventHandlers={{ click: () => onSelect(place.id), popupclose: () => onClose(place.id) }}>
     <Popup className="place-map-popup" autoPan={false}><div className="place-popup"><span className="eyebrow">{categoryLabels[place.category]}</span><h3>{place.name}</h3>
       <p>{place.address}</p><p>{place.openingHours || '운영시간 미확인'}</p>

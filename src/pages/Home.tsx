@@ -15,6 +15,7 @@ import { MapView } from '../components/Map/MapView';
 export function Home() {
   const [state, update] = useSearchState();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [navigation, setNavigation] = useState<{ id: string } | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 767px)').matches);
   const [sidebarOpen, setSidebarOpen] = useState(() => !window.matchMedia('(max-width: 767px)').matches);
@@ -50,14 +51,21 @@ export function Home() {
     return () => { document.removeEventListener('keydown', onKeyDown); previous?.focus(); };
   }, [isMobile, sidebarOpen]);
 
-  const changeFilters = (filters: PlaceFilters) => { update({ ...state, filters }); setSelectedId(null); setDetailId(null); };
-  const reset = () => { update(emptySearchState()); setSelectedId(null); setDetailId(null); };
+  const changeFilters = (filters: PlaceFilters) => { update({ ...state, filters }); setSelectedId(null); setNavigation(null); setDetailId(null); };
+  const reset = () => { update(emptySearchState()); setSelectedId(null); setNavigation(null); setDetailId(null); };
   const showDetail = (id: string) => { setSelectedId(id); if (isMobile) setSidebarOpen(false); setDetailId(id); };
+  const locatePlace = (id: string) => {
+    setSelectedId(null);
+    setDetailId(null);
+    setNavigation({ id });
+    if (isMobile) setSidebarOpen(false);
+  };
   const selectMarker = (id: string) => {
+    setNavigation(null);
     setSelectedId(id);
     document.getElementById(`desktop-place-${encodeURIComponent(id)}`)?.scrollIntoView({ block: 'nearest' });
   };
-  const list = <PlaceList places={results} total={places.length} selectedId={selected?.id ?? null} onSelect={showDetail} onReset={reset} />;
+  const list = <PlaceList places={results} total={places.length} selectedId={selected?.id ?? navigation?.id ?? null} onSelect={locatePlace} onReset={reset} />;
   const filters = <FilterPanel filters={state.filters} onChange={changeFilters} onReset={reset} />;
   const chips = [
     ...state.filters.purposes.map(value => ({ key: `purpose-${value}`, label: purposeLabels[value], remove: () => changeFilters({ ...state.filters, purposes: state.filters.purposes.filter(item => item !== value) }) })),
@@ -93,7 +101,7 @@ export function Home() {
       </div>
       <div className="sidebar-intro"><span className="eyebrow">일상에 쉼표가 필요할 때</span><h2>돈을 쓰지 않아도,<br />머물 수 있는 곳.</h2>
         <p>돈을 쓰지 않아도 머물 수 있는 동대문구의 공간을 찾아보세요.</p>
-        <SearchBar value={state.query} onChange={query => { update({ ...state, query }, 'replace'); setSelectedId(null); setDetailId(null); }} />
+        <SearchBar value={state.query} onChange={query => { update({ ...state, query }, 'replace'); setSelectedId(null); setNavigation(null); setDetailId(null); }} />
       </div>
       <div className="desktop-panel">{filters}{list}
         <footer className="sidebar-footer"><span>발견되지 않은 공간을, 일상 가까이.</span><a href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noopener noreferrer">배경지도 오류 제보<ArrowUpRight size={13} aria-hidden="true" /><span className="sr-only"> 새 탭에서 열기</span></a></footer>
@@ -106,8 +114,8 @@ export function Home() {
       </button>
       <div className="map-toolbar"><div><span className="live-dot" /><strong>동대문구 둘러보기</strong><span className="toolbar-hint">잠시 머물 공간을 찾아보세요</span></div><span className="result-summary" role="status">검색 결과 <strong>{results.length}</strong>개</span></div>
       {chips.length > 0 && <div className="active-filters" aria-label="선택한 필터">{chips.map(chip => <button type="button" key={chip.key} onClick={chip.remove} aria-label={`${chip.label} 조건 해제`}>{chip.label}<X size={12} aria-hidden="true" /></button>)}<button type="button" className="clear-all" onClick={reset}>전체 초기화</button></div>}
-      <MapView places={results} selectedId={selected?.id ?? null} onSelect={selectMarker}
-        onClose={id => setSelectedId(current => current === id ? null : current)} onDetail={showDetail} />
+      <MapView places={results} selectedId={selected?.id ?? null} navigation={navigation} onSelect={selectMarker}
+        onClose={id => { setSelectedId(current => current === id ? null : current); setNavigation(current => current?.id === id ? null : current); }} onDetail={showDetail} />
       <footer className="map-source" aria-label="행정경계 데이터 출처">
         <span>행정경계 출처:</span>
         <a href="https://www.kgeop.go.kr/" target="_blank" rel="noopener noreferrer">국가공간정보포털<span className="sr-only"> 새 탭에서 열기</span></a>

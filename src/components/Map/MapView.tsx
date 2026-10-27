@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { GeoJSON, MapContainer, TileLayer, useMap, ZoomControl } from 'react-leaflet';
-import { Popup as LeafletPopup, type TileLayer as LeafletTileLayer } from 'leaflet';
+import { Popup as LeafletPopup, type Map as LeafletMap, type TileLayer as LeafletTileLayer } from 'leaflet';
 import { maplibreGL } from '@maplibre/maplibre-gl-leaflet';
 import { setWorkerUrl } from 'maplibre-gl';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
@@ -23,15 +23,7 @@ type MapStyle = keyof typeof mapStyles;
 
 const vectorAttribution = '<a href="https://openfreemap.org/">OpenFreeMap</a> | &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | <a href="https://github.com/hyperknot/openfreemap/blob/main/LICENSE.md">지도 라이선스</a>';
 
-function MapController({ selected, resetKey }: { selected?: Place; resetKey: number }) {
-  const map = useMap();
-  useEffect(() => {
-    const observer = new ResizeObserver(() => map.invalidateSize());
-    observer.observe(map.getContainer());
-    return () => observer.disconnect();
-  }, [map]);
-  useEffect(() => {
-    if (!selected) return;
+function focusPlace(map: LeafletMap, selected: Place) {
     const animate = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const position: [number, number] = [selected.latitude, selected.longitude];
     const zoom = Math.max(map.getZoom(), 16);
@@ -55,7 +47,26 @@ function MapController({ selected, resetKey }: { selected?: Place; resetKey: num
       }
     }
     map.flyTo(map.unproject(center, zoom), zoom, { animate });
+}
+
+function MapController({ selected, navigation, places, resetKey }: { selected?: Place; navigation: { id: string } | null; places: Place[]; resetKey: number }) {
+  const map = useMap();
+  useEffect(() => {
+    const observer = new ResizeObserver(() => map.invalidateSize());
+    observer.observe(map.getContainer());
+    return () => observer.disconnect();
+  }, [map]);
+  useEffect(() => {
+    if (selected) focusPlace(map, selected);
   }, [map, selected]);
+  useEffect(() => {
+    if (!navigation) return;
+    const place = places.find(item => item.id === navigation.id);
+    if (!place) return;
+    // Wait for the marker popup to open so its height can be included in centering.
+    const frame = requestAnimationFrame(() => focusPlace(map, place));
+    return () => cancelAnimationFrame(frame);
+  }, [map, navigation, places]);
   useEffect(() => { map.fitBounds(region.bounds, { padding: [24, 24] }); }, [map, resetKey]);
   useEffect(() => {
     const mobile = window.matchMedia('(max-width: 767px)');
@@ -126,8 +137,8 @@ function VectorTiles({ style }: { style: Exclude<MapStyle, 'osm'> }) {
   </div>;
 }
 
-export function MapView({ places, selectedId, onSelect, onClose, onDetail }: {
-  places: Place[]; selectedId: string | null; onSelect: (id: string) => void; onClose: (id: string) => void; onDetail: (id: string) => void;
+export function MapView({ places, selectedId, navigation, onSelect, onClose, onDetail }: {
+  places: Place[]; selectedId: string | null; navigation: { id: string } | null; onSelect: (id: string) => void; onClose: (id: string) => void; onDetail: (id: string) => void;
 }) {
   const [resetKey, setResetKey] = useState(0);
   const [mapStyle, setMapStyle] = useState<MapStyle>('bright');
@@ -140,11 +151,11 @@ export function MapView({ places, selectedId, onSelect, onClose, onDetail }: {
     <MapContainer bounds={region.bounds} boundsOptions={{ padding: [24, 24] }} minZoom={11} zoomControl={false} className="map-canvas">
       {mapStyle === 'osm' ? <Tiles /> : <VectorTiles style={mapStyle} />}
       <ZoomControl position="bottomright" zoomInTitle="지도 확대" zoomOutTitle="지도 축소" />
-      <MapController selected={selected} resetKey={resetKey} />
+      <MapController selected={selected} navigation={navigation} places={places} resetKey={resetKey} />
       <MapCenterRegion onChange={setCurrentRegion} />
       <GeoJSON data={region.boundary} interactive={false}
         style={{ color: '#26251e', weight: 1.5, opacity: 1, dashArray: '7 5', fillColor: '#c08532', fillOpacity: 0.08 }} />
-      {places.map(place => <PlaceMarker key={place.id} place={place} selected={place.id === selectedId} onSelect={onSelect} onClose={onClose} onDetail={onDetail} />)}
+      {places.map(place => <PlaceMarker key={place.id} place={place} selected={place.id === (selectedId ?? navigation?.id)} navigation={navigation} onSelect={onSelect} onClose={onClose} onDetail={onDetail} />)}
     </MapContainer>
     <div className="map-location" aria-label={`지도 중심: ${locationLabel}`} aria-live="polite" title={`지도 중심: ${locationLabel}`}>
       <MapPin size={16} aria-hidden="true" />
