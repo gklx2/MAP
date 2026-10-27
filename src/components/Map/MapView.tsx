@@ -23,7 +23,7 @@ type MapStyle = keyof typeof mapStyles;
 
 const vectorAttribution = '<a href="https://openfreemap.org/">OpenFreeMap</a> | &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | <a href="https://github.com/hyperknot/openfreemap/blob/main/LICENSE.md">지도 라이선스</a>';
 
-function focusPlace(map: LeafletMap, selected: Place) {
+function focusPlace(map: LeafletMap, selected: Place): boolean {
     // Stop any previous animation before measuring the popup and marker positions.
     map.stop();
     const animate = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -35,7 +35,10 @@ function focusPlace(map: LeafletMap, selected: Place) {
       if (layer instanceof LeafletPopup && layer.isOpen() && layer.getLatLng()?.equals(position)) popup = layer;
     });
     // Wait for popupopen instead of flying to the pin without a measurable popup.
-    if (!popup) return;
+    if (!popup) return true;
+    // React Leaflet mounts popup content asynchronously the first time it opens.
+    // Measuring before that happens would center an empty popup instead.
+    if (!popup.getElement()?.querySelector('.place-popup')) return false;
     let center = map.project(position, zoom);
     {
       // Measure the full popup at the destination zoom before calculating its position.
@@ -52,6 +55,16 @@ function focusPlace(map: LeafletMap, selected: Place) {
       }
     }
     map.flyTo(map.unproject(center, zoom), zoom, { animate });
+    return true;
+}
+
+function scheduleFocus(map: LeafletMap, place: Place, frame: { current: number | null }) {
+  if (frame.current !== null) cancelAnimationFrame(frame.current);
+  const attempt = () => {
+    frame.current = null;
+    if (!focusPlace(map, place)) frame.current = requestAnimationFrame(attempt);
+  };
+  frame.current = requestAnimationFrame(attempt);
 }
 
 function MapController({ navigation, places, resetKey }: { navigation: { id: string } | null; places: Place[]; resetKey: number }) {
@@ -67,11 +80,7 @@ function MapController({ navigation, places, resetKey }: { navigation: { id: str
       const position = event.popup.getLatLng();
       const place = places.find(item => position?.equals([item.latitude, item.longitude]));
       if (!place) return;
-      if (focusFrame.current !== null) cancelAnimationFrame(focusFrame.current);
-      focusFrame.current = requestAnimationFrame(() => {
-        focusFrame.current = null;
-        focusPlace(map, place);
-      });
+      scheduleFocus(map, place, focusFrame);
     };
     map.on('popupopen', onPopupOpen);
     return () => {
@@ -85,11 +94,7 @@ function MapController({ navigation, places, resetKey }: { navigation: { id: str
     const place = places.find(item => item.id === navigation.id);
     if (!place) return;
     // Also handle selecting a list item whose popup is already open.
-    if (focusFrame.current !== null) cancelAnimationFrame(focusFrame.current);
-    focusFrame.current = requestAnimationFrame(() => {
-      focusFrame.current = null;
-      focusPlace(map, place);
-    });
+    scheduleFocus(map, place, focusFrame);
   }, [map, navigation, places]);
   useEffect(() => { map.fitBounds(region.bounds, { padding: [24, 24] }); }, [map, resetKey]);
   useEffect(() => {
