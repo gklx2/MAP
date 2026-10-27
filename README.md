@@ -58,4 +58,5 @@ export const places: Place[] = [];
 대상 저장소: [gklx2/MAP](https://github.com/gklx2/MAP)
 
 서비스 주소: **https://gklx2.github.io/MAP/**
+
 브랜치 주소: **https://gklx2.github.io/MAP/preview/first-place-survey/**
