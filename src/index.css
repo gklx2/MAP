@@ -153,6 +153,7 @@ h1 { font-size: 20px; letter-spacing: -0.055em; font-weight: 750; }
 .fact-grid dt { color: var(--ash); }
 .fact-grid dd { margin: 0; }
 .source-box { background: var(--bone); border-radius: 8px; padding: 16px; margin-top: 24px; font-size: 12px; color: var(--ash); line-height: 1.8; }
+.source-box p { white-space: pre-line; }
 .source-box h3 { display: flex; align-items: center; gap: 5px; margin: 0 0 8px; color: var(--ash); }
 .source-box a { color: var(--ember-text); display: inline-flex; align-items: center; gap: 5px; margin-top: 8px; text-decoration: underline; text-underline-offset: 3px; }
 .place-marker { background: transparent; border: none; }
