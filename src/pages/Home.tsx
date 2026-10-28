@@ -122,7 +122,7 @@ export function Home() {
         <span aria-hidden="true">·</span>
         <a href="https://www.data.go.kr/" target="_blank" rel="noopener noreferrer">공공데이터포털<span className="sr-only"> 새 탭에서 열기</span></a>
         <span aria-hidden="true">·</span>
-        <a href="https://github.com/KnellBalm/kr-admin-geojson" target="_blank" rel="noopener noreferrer">가공: kr-admin-geojson<span className="sr-only"> 새 탭에서 열기</span></a>
+        <a href="https://github.com/KnellBalm/kr-admin-geojson" target="_blank" rel="noopener noreferrer">kr-admin-geojson<span className="sr-only"> 새 탭에서 열기</span></a>
         <span aria-hidden="true">·</span>
         <a href="https://data.seoul.go.kr/dataList/OA-15480/S/1/datasetView.do" target="_blank" rel="noopener noreferrer">서울시 공공도서관 현황정보<span className="sr-only"> 새 탭에서 열기</span></a>
         <span aria-hidden="true">·</span>
