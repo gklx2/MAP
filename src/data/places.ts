@@ -32,7 +32,7 @@ export const places: Place[] = [
       "reading",
       "meeting"
     ],
-    "source": "서울청년센터 공식 홈페이지; 좌표: 서울시 공공서비스예약 시설대관 공개좌표(37.59067,127.05456)와 일치. https://data.seoul.go.kr/dataList/OA-12175/S/1/datasetView.do; 검증일 2026-10-27. 기재한 검증 근거 외 기존 편의시설 값은 기존 조사표 유지, 이번에 전체 재검증한 값은 아님.",
+    "source": "서울청년센터 공식 홈페이지; 좌표: 서울시 공공서비스예약 시설대관 공개좌표(37.59067,127.05456)와 일치. https://data.seoul.go.kr/dataList/OA-12175/S/1/datasetView.do \n검증일 2026-10-27. 기재한 검증 근거 외 기존 편의시설 값은 기존 조사표 유지, 이번에 전체 재검증한 값은 아님.",
     "sourceUrl": "https://youth.seoul.go.kr/orang/cntr/list.do?orderBy=regYmd+desc&pageIndex=2&recordCountPerPage=9",
     "lastVerified": "2026-10-27"
   },
