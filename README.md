@@ -33,14 +33,14 @@
 | 필드 | 의미 |
 | --- | --- |
 | id, name | 고유 ID, 공간 이름 |
-| category | library, youth, community, culture, public_lounge, park, plaza, university, other |
+| category | library, youth, community, culture, public_lounge, park, plaza, university |
 | address, district | 주소, 동대문구 |
 | latitude, longitude | 위도, 경도 |
-| free, purchaseRequired | 무료 여부, 구매 필요 여부(필수) |
+| free | 무료 여부(선택) |
 | purposes | study, work, rest, conversation, waiting, reading, meeting의 배열 |
 | description, openingHours | 설명, 운영시간(선택) |
 | indoor, outdoor | 실내·야외 여부(선택) |
-| wifi, outlet, restroom, desk | 시설 여부(선택) |
+| wifi, outlet, restroom | 시설 여부(선택) |
 | conversationAllowed, laptopFriendly, foodAllowed | 대화·노트북 적합성·음식 반입(선택) |
 | reservationRequired, wheelchairAccessible | 예약 필요·휠체어 접근(선택) |
 | source, sourceUrl, lastVerified | 정보 출처, 공식 웹 링크, 마지막 확인 날짜(선택) |

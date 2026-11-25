@@ -40,6 +40,6 @@ export function FilterPanel({ filters, onChange, onReset }: Props) {
     </fieldset>
     {booleanGroup('시설', facilityOptions)}
     {booleanGroup('이용 조건', conditionOptions)}
-    <p className="filter-help">목적·유형은 하나 이상, 시설·조건은 모두 맞는 공간을 찾습니다. 미확인 정보는 조건 충족에 포함하지 않습니다.</p>
+    <p className="filter-help">목적·유형은 하나 이상, 시설·조건은 모두 맞아야 합니다. 조건별로 일부 구역만 해당해도 표시되며, 미확인 정보는 포함하지 않습니다.</p>
   </div>;
 }

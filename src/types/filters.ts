@@ -1,9 +1,9 @@
 import type { Category, Purpose } from './place';
 
 export const booleanFilterKeys = [
-  'wifi', 'outlet', 'restroom', 'desk', 'wheelchairAccessible',
-  'free', 'purchaseRequired', 'reservationRequired', 'indoor', 'outdoor',
-  'conversationAllowed', 'laptopFriendly',
+  'wifi', 'outlet', 'restroom', 'wheelchairAccessible',
+  'free', 'reservationRequired', 'indoor', 'outdoor',
+  'conversationAllowed', 'laptopFriendly', 'foodAllowed',
 ] as const;
 
 export type BooleanFilterKey = typeof booleanFilterKeys[number];
