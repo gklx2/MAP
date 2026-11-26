@@ -130,6 +130,8 @@ export function Home() {
         <a href="https://data.seoul.go.kr/dataList/OA-15480/S/1/datasetView.do" target="_blank" rel="noopener noreferrer">서울시 공공도서관 현황정보<span className="sr-only"> 새 탭에서 열기</span></a>
         <span aria-hidden="true">·</span>
         <a href="https://data.seoul.go.kr/dataList/OA-394/S/1/datasetView.do?tab=A" target="_blank" rel="noopener noreferrer">서울시 주요 공원현황<span className="sr-only"> 새 탭에서 열기</span></a>
+        <span aria-hidden="true">·</span>
+        <a href="https://data.seoul.go.kr/dataList/OA-20894/S/1/datasetView.do" target="_blank" rel="noopener noreferrer">서울시 동대문구 공공와이파이 서비스 위치 정보<span className="sr-only"> 새 탭에서 열기</span></a>
       </footer>
     </div></main>
     {detail && <PlaceDetail place={detail} onClose={() => setDetailId(null)} />}
