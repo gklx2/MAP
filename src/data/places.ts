@@ -867,7 +867,7 @@ export const places: Place[] = [
       "free": "관람 무료, 점포 상품·서비스 별도 유료",
       "conversationAllowed": "시장 통로·청춘다방에서 일상 대화 가능.",
       "foodAllowed": "청춘다방·시장 식당가 이용 가능. 관람구역 외부음식 반입 금지",
-      "wheelchairAccessible": "시장 주출입구 무단차. 2층 엘리베이터·경사로 이용 사례 있음."
+      "wheelchairAccessible": "시장 주출입구에 단차 없음. 엘리베이터로 2층 이동 가능."
     },
     "purposes": [
       "work",
@@ -887,7 +887,7 @@ export const places: Place[] = [
     "district": "동대문구",
     "latitude": 37.581184,
     "longitude": 127.031889,
-    "description": "선농단·선농대제를 다루는 실내 상설전시. 문화관 공공 Wi‑Fi는 세미나실 설치 기록 기준.",
+    "description": "선농단과 선농대제를 소개하는 실내 상설전시.",
     "openingHours": "3~10월 10:00~18:00, 11~2월 10:00~17:00. 입장은 마감 1시간 전까지. 월요일·법정공휴일 휴관.",
     "free": true,
     "indoor": true,
@@ -900,9 +900,10 @@ export const places: Place[] = [
     "reservationRequired": false,
     "conditionDetails": {
       "free": "상설전시 무료, 세미나실 대관 유료",
+      "wifi": "세미나실에 공공 Wi-Fi 설치.",
       "conversationAllowed": "전시실에서는 조용히 관람",
       "reservationRequired": "개인 상설전시 관람은 예약 불필요. 일부 체험·대관은 별도 신청.",
-      "wheelchairAccessible": "주출입구 단차 있음(한국관광공사 안내)"
+      "wheelchairAccessible": "주출입구에 단차 있음."
     },
     "purposes": [
       "rest"
